@@ -1,11 +1,11 @@
 import { defineStore } from 'pinia'
 
 export const useStore = defineStore('CategoryStore', {
-state: () => {
-    return {categories: 
+state: () => ({
+    categories: 
         []
     }
-}
+)
 ,
 getters: {
     getCategories: (state) => state.categories,
@@ -16,6 +16,10 @@ actions: {
         const newId = this.categories.length
         this.categories.push({id:newId, name:name});
     },
+    editCategory(currentCategory, newName) {
+        let c = this.categories.find(e => e.name == currentCategory.name)
+        c.name = newName
+    }
 },
 })
 

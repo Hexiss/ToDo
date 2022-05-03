@@ -5,9 +5,10 @@
     <div class="flex-container" v-for="(category, index) in categories" :key="index">
       <div class="card text-center flex-items" style="width: 38rem; height: 28rem">
         <div class="header">
-        <h1 class="card-header">{{ category.name }}</h1>
-        <button  @click="removeCategory">delete</button>
-        <button @click="editCategory">edit</button>
+          <h1 class="card-header">{{ category.name }}</h1>
+            <input v-model="newName" @keyup.enter="editCategory(category)" />
+        <button  class="trash" @click="removeCategory">✖️</button>
+        <button  class="trash" @click="toggle = !toggle">edit</button>
         </div>
         <div class="card-body">
           <form @submit.prevent="addTodo(category.name)">
@@ -79,10 +80,10 @@ import Modal from "@/components/Modal.vue";
 import { useStore } from "@/stores/category.js";
 export default {
   setup() {
-
     const newTodo = ref("");
     const todosData = JSON.parse(localStorage.getItem("todos"));
     const todos = ref(todosData);
+    const newName = "";
     function addTodo(categoryName) {
       if (newTodo.value) {
         todos.value.push({
@@ -119,8 +120,8 @@ export default {
     function removeCategory(index) {
       this.categories.splice(index, 1)
     }
-    function editCategory(index) {
-      //a faire
+    function editCategory(currentCategory) {
+    this.store.editCategory(currentCategory, this.newName);
     }
     const store = useStore();
     const categories = computed(()=>store.getCategories)
@@ -148,6 +149,9 @@ export default {
       categoryTodos,
       removeCategory,
       editCategory,
+      newName,
+      categoriesName : store.getCategories,
+      editMode: false
     };
   },
   components: {
