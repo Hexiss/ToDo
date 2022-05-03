@@ -15,8 +15,19 @@
     <MDBModalHeader>
       <MDBModalTitle id="exampleModalLabel">Créer une catégorie</MDBModalTitle>
     </MDBModalHeader>
-    <MDBInput class="input" @keyup.enter="AddCategory" label="Choix du nom" v-model="name" />
+    <MDBInput
+      class="input"
+      @keyup.enter="AddCategory"
+      label="Choix du nom"
+      v-model="name"
+    />
     <MDBModalFooter>
+      <input
+        type="date"
+        id="start"
+        min="2022-05-03"
+        max="3000-12-31"
+      />
       <MDBBtn color="secondary" @click="exampleModal = false">Fermer</MDBBtn>
       <MDBBtn color="primary" @click="AddCategory">Enregistrer</MDBBtn>
     </MDBModalFooter>
@@ -56,13 +67,13 @@ export default {
   methods: {
     AddCategory() {
       this.store.AddCategory(this.name);
-    }
+    },
   },
 };
 </script>
 
 <style scoped>
 .input {
-    width: 10%;
+  width: 10%;
 }
 </style>
