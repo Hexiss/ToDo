@@ -1,81 +1,93 @@
 <template>
-<body>
+  <body>
     <Modal />
-  <div>
-    <div class="flex-container" v-for="(category, index) in categories" :key="index">
-      <div class="card text-center flex-items" style="width: 38rem; height: 28rem">
-        <div class="header">
-          <h1 class="card-header">{{ category.name }}</h1>
+    <div>
+      <div
+        class="flex-container"
+        v-for="(category, index) in categories"
+        :key="index"
+      >
+        <div
+          class="card text-center flex-items"
+          style="width: 38rem; height: 28rem"
+        >
+          <div class="header">
+            <h1 class="card-header">{{ category.name }}</h1>
             <input v-model="newName" @keyup.enter="editCategory(category)" />
-        <button  class="trash" @click="removeCategory">✖️</button>
-        <button  class="trash" @click="toggle = !toggle">edit</button>
+            <button class="trash" @click="removeCategory">✖️</button>
+            <button class="trash" @click="toggle = !toggle">edit</button>
+          </div>
+          <div class="card-body">
+            <form @submit.prevent="addTodo(category.name)">
+              <div class="new-task">
+                <input
+                  class="form-element"
+                  placeholder="Nouveau todo"
+                  v-model="newTodo"
+                  type="text"
+                />
+
+                <button class="form-element" @click="add">+</button>
+              </div>
+            </form>
+            <ul>
+              <li v-for="(todo, i) in categoryTodos[category.name]" :key="i">
+                {{ todo.length }}
+                <span :class="{ done: todo.done }" @click="doneTodo(todo)">
+                  {{ todo.content }}</span
+                >
+                <button class="trash" @click="removeTodo(index)">🞮</button>
+              </li>
+            </ul>
+          </div>
+          <div class="card-footer text-muted">Todo restant :</div>
         </div>
-        <div class="card-body">
-          <form @submit.prevent="addTodo(category.name)">
-            <div class="new-task">
-              <input
-                class="form-element"
-                placeholder="Nouveau todo"
-                v-model="newTodo"
-                type="text"
-              />
-              
-              <button class="form-element" @click="add">+</button>
-            </div>
-          </form>
-              <ul>
-                <li v-for="(todo, i) in categoryTodos[category.name]" :key="i">
-                  {{todo.length}}
-                  <span :class="{ done: todo.done }" @click="doneTodo(todo)">
-                    {{todo.content}}</span>
-                  <button class="trash" @click="removeTodo(index)">🞮</button>
-                </li>
-                </ul>  
+      </div>
+      <div
+        class="card text-center flex-items"
+        style="width: 38rem; height: 28rem"
+      >
+        <form @submit.prevent="addTodo()">
+          <div class="new-task">
+            <input
+              class="form-element"
+              placeholder="Nouveau todo"
+              v-model="newTodo"
+              type="text"
+            />
+
+            <button class="form-element" @click="add">+</button>
+          </div>
+        </form>
+        <h2>Tâches en cours</h2>
+        <ul>
+          <li v-for="(todo, index) in todos" :key="index">
+            <span :class="{ done: todo.done }" @click="doneTodo(todo)">{{
+              todo.content
+            }}</span>
+            <button class="trash" @click="removeTodo(index)">🞮</button>
+          </li>
+          <h4 v-if="todos.length === 0">La liste est vide</h4>
+        </ul>
+        <button class="myButton" @click="removeAllTodos(index)">
+          Tout supprimer
+        </button>
+        <button class="myButton" @click="markAllDone(index)">
+          Marquer tout comme fait
+        </button>
+        <button class="myButton" @click="markAllUndoneTodo(index)">
+          Marquer tout comme à faire
+        </button>
+        <div class="row">
+          <span>Total : {{ todos.length }} </span>
         </div>
-        <div class="card-footer text-muted">Todo restant :</div>
       </div>
     </div>
-    <h1>---------------</h1>
-    <form @submit.prevent="addTodo()">
-      <div class="new-task">
-        <input
-          class="form-element"
-          placeholder="Nouveau todo"
-          v-model="newTodo"
-          type="text"
-        />
-
-        <button class="form-element" @click="add">+</button>
-      </div>
-    </form>
-    <h2>Tâches en cours</h2>
-    <ul>
-      <li v-for="(todo, index) in todos" :key="index">
-        <span :class="{ done: todo.done }" @click="doneTodo(todo)">{{
-          todo.content
-        }}</span>
-        <button class="trash" @click="removeTodo(index)">🞮</button>
-      </li>
-    </ul>
-    <button class="myButton" @click="removeAllTodos(index)">
-      Tout supprimer
-    </button>
-    <button class="myButton" @click="markAllDone(index)">
-      Marquer tout comme fait
-    </button>
-    <button class="myButton" @click="markAllUndoneTodo(index)">
-      Marquer tout comme à faire
-    </button>
-     <h4 v-if="todos.length === 0">La liste est vide</h4>
-  </div>
-  <div class="row">
- <span>Total : {{ todos.length }} </span> 
-  </div>
-</body>
+  </body>
 </template>
 
 <script>
-import { ref, computed  } from "vue";
+import { ref, computed } from "vue";
 import Modal from "@/components/Modal.vue";
 import { useStore } from "@/stores/category.js";
 export default {
@@ -118,21 +130,23 @@ export default {
       todos.value.forEach((todo) => (todo.done = false));
     }
     function removeCategory(index) {
-      this.categories.splice(index, 1)
+      this.categories.splice(index, 1);
     }
     function editCategory(currentCategory) {
-    this.store.editCategory(currentCategory, this.newName);
+      this.store.editCategory(currentCategory, this.newName);
     }
     const store = useStore();
-    const categories = computed(()=>store.getCategories)
+    const categories = computed(() => store.getCategories);
     const categoryTodos = computed(() => {
-      let categoryName = []
-      for (let index = 0; index < categories.value.length; index++) {        
-        categoryName[categories.value[index].name] = todos.value.filter(t => t.category == categories.value[index].name)
+      let categoryName = [];
+      for (let index = 0; index < categories.value.length; index++) {
+        categoryName[categories.value[index].name] = todos.value.filter(
+          (t) => t.category == categories.value[index].name
+        );
       }
       console.log(categoryName);
       return categoryName;
-    })
+    });
 
     return {
       todos,
@@ -150,8 +164,8 @@ export default {
       removeCategory,
       editCategory,
       newName,
-      categoriesName : store.getCategories,
-      editMode: false
+      categoriesName: store.getCategories,
+      editMode: false,
     };
   },
   components: {
@@ -227,11 +241,10 @@ button.form-element {
 }
 
 .flex-items {
-    margin-left: 10px;
-    margin-right: 10px;
-    margin-top: 10px;
-    margin-bottom: 10px;
-
+  margin-left: 10px;
+  margin-right: 10px;
+  margin-top: 10px;
+  margin-bottom: 10px;
 }
 
 .header {
@@ -240,5 +253,4 @@ button.form-element {
   justify-content: center;
   align-items: center;
 }
-
 </style>
